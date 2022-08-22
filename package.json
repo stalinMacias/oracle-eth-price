@@ -1,0 +1,19 @@
+{
+  "name": "building_an_oracle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.7.3",
+    "axios": "^0.27.2",
+    "bn.js": "^5.2.1",
+    "loom-js": "^1.55.0",
+    "loom-truffle-provider": "^0.13.0"
+  }
+}
