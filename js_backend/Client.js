@@ -1,8 +1,8 @@
 const common = require('./utils/common.js')
 const SLEEP_INTERVAL = process.env.SLEEP_INTERVAL || 2000
 const PRIVATE_KEY_FILE_NAME = process.env.PRIVATE_KEY_FILE || './caller/caller_private_key'
-const CallerJSON = require('./caller/build/contracts/CallerContract.json')
-const OracleJSON = require('./oracle/build/contracts/EthPriceOracle.json')
+const CallerJSON = require('./contracts/CallerContract.json')
+const OracleJSON = require('./contracts/EthPriceOracle.json')
 
 async function getCallerContract (web3js) {
   const networkId = await web3js.eth.net.getId()
