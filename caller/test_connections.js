@@ -16,7 +16,9 @@ console.log(aux[0])
 let provider = new HDWalletProvider({
   privateKeys: PRIVATE_KEYS.split(','),
   //providerOrUrl: `https://goerli.infura.io/v3/${INFURA_API_KEY}`
-  providerOrUrl: `wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`
+  //providerOrUrl: `wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`
+  providerOrUrl: `http://172.29.224.1:7545`
 })
 
-console.log(provider)
+console.log(provider.HDWalletProvider)
+console.log(provider.getAddress())

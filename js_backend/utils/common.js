@@ -1,31 +1,33 @@
-const fs = require('fs')
-const Web3 = require('web3')
-const { Client, NonceTxMiddleware, SignedTxMiddleware, LocalAddress, CryptoUtils, LoomProvider } = require('loom-js')
+require('dotenv').config();
+const Web3 = require('web3');
 
-function loadAccount (privateKeyFileName) {
-  const extdevChainId = 'extdev-plasma-us1'
-  const privateKeyStr = fs.readFileSync(privateKeyFileName, 'utf-8')
-  const privateKey = CryptoUtils.B64ToUint8Array(privateKeyStr)
-  const publicKey = CryptoUtils.publicKeyFromPrivateKey(privateKey)
-  const client = new Client(
-    extdevChainId,
-    'wss://extdev-plasma-us1.dappchains.com/websocket',
-    'wss://extdev-plasma-us1.dappchains.com/queryws'
-  )
-  client.txMiddleware = [
-    new NonceTxMiddleware(publicKey, client),
-    new SignedTxMiddleware(privateKey)
-  ]
-  client.on('error', msg => {
-    console.error('Connection error', msg)
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+const PRIVATE_KEYS = process.env.PRIVATE_KEYS || ""
+const INFURA_API_KEY = process.env.INFURA_API_KEY || ""
+
+//console.log(PRIVATE_KEYS)
+//console.log(PRIVATE_KEYS.split(','))
+let aux = PRIVATE_KEYS.split(',')
+//console.log(aux[0])
+
+async function initializeConnection() {
+  let provider = await new HDWalletProvider({
+    privateKeys: PRIVATE_KEYS.split(','),
+    //providerOrUrl: `https://goerli.infura.io/v3/${INFURA_API_KEY}`
+    //providerOrUrl: `wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`   // Goerli through ws (Web Sockets)
+    providerOrUrl: `ws://172.29.224.1:7545`                             // Ganache through ws (Web Sockets)
   })
+
+  const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://172.29.224.1:7545'))                             // Ganache
+  //const web3 = new Web3(new Web3.providers.WebsocketProvider(`wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`))   // Goerli
+  //console.log("web3 object: ", web3)
+  
   return {
-    ownerAddress: LocalAddress.fromPublicKey(publicKey).toString(),
-    web3js: new Web3(new LoomProvider(client, privateKey)),
-    client
+    ownerAddress: provider.getAddress(),
+    web3js: web3
   }
 }
 
 module.exports = {
-  loadAccount,
+  initializeConnection,
 };

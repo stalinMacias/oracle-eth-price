@@ -2,16 +2,16 @@ const axios = require('axios')
 const BN = require('bn.js')
 const common = require('./utils/common.js')
 const SLEEP_INTERVAL = process.env.SLEEP_INTERVAL || 2000
-const PRIVATE_KEY_FILE_NAME = process.env.PRIVATE_KEY_FILE || './oracle/oracle_private_key'
 const CHUNK_SIZE = process.env.CHUNK_SIZE || 3
 const MAX_RETRIES = process.env.MAX_RETRIES || 5
-const OracleJSON = require('./oracle/build/contracts/EthPriceOracle.json')
+const OracleJSON = require('./contracts/EthPriceOracle.json')
 var pendingRequests = []
 
 async function getOracleContract (web3js) {
   const networkId = await web3js.eth.net.getId()
   return new web3js.eth.Contract(OracleJSON.abi, OracleJSON.networks[networkId].address)
 }
+
 
 async function filterEvents (oracleContract, web3js) {
   oracleContract.events.GetLatestEthPriceEvent(async (err, event) => {
@@ -20,6 +20,7 @@ async function filterEvents (oracleContract, web3js) {
       return
     }
     await addRequestToQueue(event)
+    console.log("Aqui andare escuchando")
   })
 
   oracleContract.events.SetLatestEthPriceEvent(async (err, event) => {
@@ -31,11 +32,13 @@ async function filterEvents (oracleContract, web3js) {
   })
 }
 
+
 async function addRequestToQueue (event) {
   const callerAddress = event.returnValues.callerAddress
   const id = event.returnValues.id
   pendingRequests.push({ callerAddress, id })
 }
+
 
 async function processQueue (oracleContract, ownerAddress) {
   let processedRequests = 0
@@ -51,6 +54,7 @@ async function processRequest (oracleContract, ownerAddress, id, callerAddress) 
   while (retries < MAX_RETRIES) {
     try {
       const ethPrice = await retrieveLatestEthPrice()
+      //const ethPrice = 1600
       await setLatestEthPrice(oracleContract, callerAddress, ownerAddress, ethPrice, id)
       return
     } catch (error) {
@@ -62,6 +66,7 @@ async function processRequest (oracleContract, ownerAddress, id, callerAddress) 
     }
   }
 }
+
 
 async function setLatestEthPrice (oracleContract, callerAddress, ownerAddress, ethPrice, id) {
   ethPrice = ethPrice.replace('.', '')
@@ -77,20 +82,26 @@ async function setLatestEthPrice (oracleContract, callerAddress, ownerAddress, e
 }
 
 async function init () {
-  const { ownerAddress, web3js, client } = common.loadAccount(PRIVATE_KEY_FILE_NAME)
+  const { ownerAddress, web3js } = await common.initializeConnection()
+  //console.log("Web3js object: " , web3js)
   const oracleContract = await getOracleContract(web3js)
+  //console.log("Oracle contract: " , oracleContract)
   filterEvents(oracleContract, web3js)
-  return { oracleContract, ownerAddress, client }
+  return { oracleContract, ownerAddress }
 }
 
+
 (async () => {
-  const { oracleContract, ownerAddress, client } = await init()
+  const { oracleContract, ownerAddress } = await init()
+
+  console.log("Initialized the oracle contract & retrieved its owner address")
+
   process.on( 'SIGINT', () => {
-    console.log('Calling client.disconnect()')
-    client.disconnect()
     process.exit( )
   })
+
   setInterval(async () => {
     await processQueue(oracleContract, ownerAddress)
   }, SLEEP_INTERVAL)
 })()
+
