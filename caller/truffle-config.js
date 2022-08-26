@@ -1,3 +1,9 @@
+require('dotenv').config();
+const path = require('path');
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+const PRIVATE_KEYS = process.env.PRIVATE_KEYS || "" 
+const INFURA_API_KEY = process.env.INFURA_API_KEY || ""
+
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -33,6 +39,7 @@ module.exports = {
    *
    * $ truffle test --network <network-name>
    */
+  contracts_build_directory: path.join(__dirname, "../js_backend/contracts"),
 
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
@@ -41,11 +48,28 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     //
-    // development: {
-    //  host: "127.0.0.1",     // Localhost (default: none)
-    //  port: 8545,            // Standard Ethereum port (default: none)
-    //  network_id: "*",       // Any network (default: none)
-    // },
+    development: {
+      host: "172.29.224.1",     // Localhost (default: none)
+      port: 7545,            // Standard Ethereum port (default: none)
+      network_id: "*",       // Any network (default: none)
+    },
+    ////// SETUP Goerli USING THE INFO FROM THE .env file
+    goerli : { 
+      provider: function() { 
+        return new HDWalletProvider({ 
+            privateKeys: PRIVATE_KEYS.split(','), 
+            providerOrUrl: `wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`
+          }) 
+      }, 
+      gas: 5000000, 
+      gasPrice: 25000000000, 
+      network_id: 5,
+      //skipDryRun: true,
+      confirmations: 5,
+      networkCheckTimeout: 1000000,
+      websocket: true,
+      timeoutBlocks: 200
+    },
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port
