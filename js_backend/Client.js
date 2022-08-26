@@ -10,20 +10,9 @@ async function getCallerContract (web3js) {
   console.log("netowrkId: ", networkId)
   return new web3js.eth.Contract(CallerJSON.abi, CallerJSON.networks[networkId].address)
 }
-/*
-async function retrieveLatestEthPrice () {
-  console.log("Trying to connect to the binance api")
-  const resp = await axios({
-    url: 'https://api.binance.com/api/v3/ticker/price',
-    params: {
-      symbol: 'ETHUSDT'
-    },
-    method: 'get',
-    agent: new Agent({ rejectUnauthorized: false })
-  })
-  return resp.data.price
-}
-*/
+
+
+
 
 async function filterEvents (callerContract) {
   console.log("Running in the filterEvents")
@@ -41,7 +30,7 @@ async function init () {
   const { ownerAddress, web3js } = await common.initializeConnection()
   //console.log("Web3js object: " , web3js)
   const callerContract = await getCallerContract(web3js)
-  console.log("callerContract; " , callerContract)
+  //console.log("callerContract; " , callerContract)
   filterEvents(callerContract)
   return { callerContract, ownerAddress, web3js }
 }
@@ -49,13 +38,13 @@ async function init () {
 (async () => {
   const { callerContract, ownerAddress, web3js } = await init()
   process.on( 'SIGINT', () => {
-    console.log('Calling prcoess.exit()')
+    console.log('Calling precess.exit()')
     process.exit( );
   })
   const networkId = await web3js.eth.net.getId()
   const oracleAddress =  OracleJSON.networks[networkId].address
-  await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress })
+  await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress, gasLimit: 1000000 })
   setInterval( async () => {
-    callerContract.methods.updateEthPrice().send({ from: ownerAddress })
+    callerContract.methods.updateEthPrice().send({ from: ownerAddress, gasLimit: 1000000 })
   }, SLEEP_INTERVAL);
 })()

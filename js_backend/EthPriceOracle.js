@@ -12,6 +12,16 @@ async function getOracleContract (web3js) {
   return new web3js.eth.Contract(OracleJSON.abi, OracleJSON.networks[networkId].address)
 }
 
+async function retrieveLatestEthPrice () {
+  const resp = await axios({
+    url: 'https://api.binance.com/api/v3/ticker/price',
+    params: {
+      symbol: 'ETHUSDT'
+    },
+    method: 'get'
+  })
+  return resp.data.price
+}
 
 async function filterEvents (oracleContract, web3js) {
   oracleContract.events.GetLatestEthPriceEvent(async (err, event) => {
@@ -20,7 +30,7 @@ async function filterEvents (oracleContract, web3js) {
       return
     }
     await addRequestToQueue(event)
-    console.log("Aqui andare escuchando")
+    console.log("Incoming request to update ETH Price")
   })
 
   oracleContract.events.SetLatestEthPriceEvent(async (err, event) => {
@@ -54,6 +64,7 @@ async function processRequest (oracleContract, ownerAddress, id, callerAddress) 
   while (retries < MAX_RETRIES) {
     try {
       const ethPrice = await retrieveLatestEthPrice()
+      console.log("Eth price: ", ethPrice)
       //const ethPrice = 1600
       await setLatestEthPrice(oracleContract, callerAddress, ownerAddress, ethPrice, id)
       return
@@ -93,7 +104,6 @@ async function init () {
 
 (async () => {
   const { oracleContract, ownerAddress } = await init()
-
   console.log("Initialized the oracle contract & retrieved its owner address")
 
   process.on( 'SIGINT', () => {
@@ -102,6 +112,8 @@ async function init () {
 
   setInterval(async () => {
     await processQueue(oracleContract, ownerAddress)
+    const ethPrice = await retrieveLatestEthPrice()
+    console.log("eth price: ", ethPrice)
   }, SLEEP_INTERVAL)
 })()
 
