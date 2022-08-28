@@ -1,6 +1,5 @@
 /*
   * The solely purpose of this Simulator program is to manually ask for the ETH Price in the console, and when the counter reaches 5 trigger the contract's functions to update the price in the Oracle
-
 */
 
 const common = require('./utils/common.js')
@@ -23,6 +22,7 @@ async function filterEvents (callerContract) {
 async function init () {
   console.log("Running in the init() function")
   const { ownerAddress, web3js, clientAddress } = await common.initializeConnection()
+  console.log("Client Address: ", clientAddress);
   //console.log("Web3js object: " , web3js)
   const callerContract = await common.getCallerContract(web3js,CallerJSON)
   //console.log("callerContract; " , callerContract)
@@ -44,38 +44,30 @@ async function init () {
   //await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress, gasLimit: 100000 })
 
   let requestedEthPriceTimes = 0;
-  let activeTrancation = false;
 
   setInterval( async () => {
     requestedEthPriceTimes++;
     const price = await callerContract.methods.getCurrentEthPrice().call({ from: clientAddress })
     console.log("Current Eth price set in the Oracle: ", price);
 
-    if(requestedEthPriceTimes == 2 && activeTrancation == false) {
+    if(requestedEthPriceTimes == 10) {
       console.log("5th time requesting the ETC price, time to update the price in the Oracle contract");
 
       // Defining the transaction
-      let updatePriceRequest = callerContract.methods.updateEthPrice()
+      let updateEthPriceRequest = callerContract.methods.updateEthPrice()
+      //console.log("updateEthPriceRequest: ", updateEthPriceRequest);
 
-      const hardcodingRequiredGas = web3js.utils.toWei('0.0000000000001', 'ether')
+      // Signing the transaction as the Client's owner
+      //let signedTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
+      let signedpdateEthPriceRequestTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(updateEthPriceRequest, clientAddress, web3js), CLIENT_KEYS);
+      //console.log("signedpdateEthPriceRequestTransaction: ", signedpdateEthPriceRequestTransaction);
 
-      //const accountNonce = '0x' + await (web3js.eth.getTransactionCount(clientAddress) + 1).toString(16)
-      const accountNonce = await web3js.eth.getTransactionCount(clientAddress)
-
-      // Options of the transaction
-      let options = {
-        nonce: accountNonce,
-        to      : updatePriceRequest._parent._address,  // contract's address
-        data    : updatePriceRequest.encodeABI(),
-        //gas     : await updatePriceRequest.estimateGas({from: clientAddress}) <----> For some reasong the estimateGas() seems not to be working!
-        gas     : hardcodingRequiredGas,
-        //networkId : '0x5'
-      };
-
-      // Signing the transaction as the Client's Owner
-      let signedTransaction  = await web3js.eth.accounts.signTransaction(options, CLIENT_KEYS);
+      // Sending the signed transaction
+      console.log("Sending the signed transaction to execute the updateEthPrice() in the Caller Contract");
+      await common.sendingSignedTransactions(signedpdateEthPriceRequestTransaction, web3js, "Calling the updateEthPrice() method in the Caller Contract")
 
 
+      /*
       console.log(updatePriceRequest._parent._address)
       console.log(options);
       console.log("Signed Transaction: ", signedTransaction);
@@ -101,6 +93,8 @@ async function init () {
       // Sending an unsigned transaction - Works for Ganache but not for public blockchains
       // When sending transactions to a public blockchain the transaction must be signed before actually sending it    <---> sendSignedTransaction(signedTrasaction.rawTransaction)
       //callerContract.methods.updateEthPrice().send({ from: clientAddress, gasLimit: 100000 })
+      */
+
       requestedEthPriceTimes = 0
     }
   }, SLEEP_INTERVAL);

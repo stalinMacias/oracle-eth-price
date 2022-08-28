@@ -83,11 +83,10 @@ async function sendingSignedTransactions(signedTransaction, web3js, txDescriptio
       })
       .on('confirmation', function(confNumber, receipt){ 
         //console.log("confNumber",confNumber,"receipt",receipt)
-        console.log("confNumber: ",confNumber, " for tx: ", txDescriptionMessage);
+        //console.log("confNumber: ",confNumber, " for tx: ", txDescriptionMessage);
       })
       .on('error', function(error){ 
         console.log("error", error)
-
       })
       .then(function(receipt){
           console.log("Transaction completed! - ", txDescriptionMessage);
