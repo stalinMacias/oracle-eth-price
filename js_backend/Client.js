@@ -5,9 +5,7 @@ const OracleJSON = require('./contracts/EthPriceOracle.json')
 const OWNER_KEYS = process.env.OWNER_KEYS || ""
 
 async function getCallerContract (web3js) {
-  //console.log(await web3js.eth.net.getId())
   const networkId = await web3js.eth.net.getId()
-  //console.log("netowrkId: ", networkId)
   return new web3js.eth.Contract(CallerJSON.abi, CallerJSON.networks[networkId].address)
 }
 
@@ -26,7 +24,6 @@ async function filterEvents (callerContract) {
 async function init () {
   console.log("Running in the init() function")
   const { ownerAddress, web3js, clientAddress } = await common.initializeConnection()
-  //console.log("Web3js object: " , web3js)
   const callerContract = await getCallerContract(web3js)
   
   filterEvents(callerContract)
@@ -38,6 +35,7 @@ async function init () {
   console.log("callerContract address " , callerContract._address)
   console.log("oracleAddress address " , oracleAddress)
 
+  // Sending an unsigned transaction - Only works in Ganache
   //await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress, gasLimit: 100000 })
 
   // Defining the transaction
@@ -47,12 +45,11 @@ async function init () {
   // let signedSetOracleInstanceAddressTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
   let signedSetOracleInstanceAddressTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(setOracleInstanceAddress, ownerAddress, web3js), OWNER_KEYS);
 
-  // Sending the signed transaction
-  //await common.sendingSignedTransactions(signedSetOracleInstanceAddressTransaction, web3js, "setOracleInstanceAddress transaction")
+  console.log("Sending the signed transaction to set the oracle instance address in the Caller Contract")
+  await common.sendingSignedTransactions(signedSetOracleInstanceAddressTransaction, web3js, "setOracleInstanceAddress transaction")
 
   return { callerContract, ownerAddress, web3js, clientAddress }
 }
-
 
 (async () => {
   const { callerContract, ownerAddress, web3js, clientAddress } = await init()
@@ -74,51 +71,15 @@ async function init () {
       // Defining the transaction
       let updatePriceRequest = callerContract.methods.updateEthPrice()
 
-      /*
-      // Options of the transaction
-      let options = {
-        nonce: accountNonce,
-        to      : updatePriceRequest._parent._address,  // contract's address
-        data    : updatePriceRequest.encodeABI(),
-        //gas     : await updatePriceRequest.estimateGas({from: ownerAddress}) <----> For some reasong the estimateGas() seems not to be working!
-        gas     : hardcodingRequiredGas,
-        //networkId : '0x5'
-      };
-      */
-
       // Signing the transaction as the CallerContract's owner
       //let signedTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
-      let signedTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(updatePriceRequest, ownerAddress, web3js), OWNER_KEYS);
+      let signedUpdatePriceRequestTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(updatePriceRequest, ownerAddress, web3js), OWNER_KEYS);
 
-      // Sending the signed transaction
-      await common.sendingSignedTransactions(signedTransaction, web3js, "Updating ETH Price in CallerContract Transaction")
-
-
-      //console.log(updatePriceRequest._parent._address)
-      //console.log(options);
-      //console.log("Signed Transaction: ", signedTransaction);
-
-      /*
-      // Sending the signed transaction
-      try {
-        web3js.eth.sendSignedTransaction(signedTransaction.rawTransaction)
-          .once('transactionHash', function(hash){ 
-            console.log("txHash", hash)
-            activeTransaction = true;
-          })
-          .once('receipt', function(receipt){ console.log("receipt", receipt) })
-          .on('confirmation', function(confNumber, receipt){ console.log("confNumber",confNumber,"receipt",receipt) })
-          .on('error', function(error){ console.log("error", error) })
-          .then(function(receipt){
-              console.log("Transaction completed!", receipt);
-          });
-      } catch (error) {
-        console.log("Error Sending Transaction", error.message);
-      }
-      */
-      
-      // Sending an unsigned transaction - Works for Ganache but not for public blockchains
       // When sending transactions to a public blockchain the transaction must be signed before actually sending it    <---> sendSignedTransaction(signedTransaction.rawTransaction)
+      console.log("Sending the signed transaction to execute the updateEthPrice() in the callerContract");
+      await common.sendingSignedTransactions(signedUpdatePriceRequestTransaction, web3js, "Updating ETH Price in CallerContract Transaction")
+     
+      // Sending an unsigned transaction - Works for Ganache but not for public blockchains
       //callerContract.methods.updateEthPrice().send({ from: ownerAddress, gasLimit: 100000 })
       requestedEthPriceTimes = 0
     }
@@ -128,15 +89,5 @@ async function init () {
   module.exports = {
     init,
   };
-
-
-  /*
-  * Force the ETH price to be updated automatically each X time!
-  setInterval( async () => {
-    callerContract.methods.updateEthPrice().send({ from: ownerAddress, gasLimit: 100000 })
-  }, SLEEP_INTERVAL);
-
   
-
-  */
 })()

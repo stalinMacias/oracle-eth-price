@@ -1,7 +1,7 @@
 const axios = require('axios')
 const BN = require('bn.js')
 const common = require('./utils/common.js')
-const SLEEP_INTERVAL = process.env.SLEEP_INTERVAL || 4000
+const SLEEP_INTERVAL = process.env.SLEEP_INTERVAL || 5000
 const CHUNK_SIZE = process.env.CHUNK_SIZE || 3
 const MAX_RETRIES = process.env.MAX_RETRIES || 5
 const OracleJSON = require('./contracts/EthPriceOracle.json')
@@ -91,7 +91,6 @@ async function setLatestEthPrice (oracleContract, callerAddress, ownerAddress, e
 
     // Defining the transaction
     let setLatestEthPriceRequest = oracleContract.methods.setLatestEthPrice(ethPriceInt.toString(), callerAddress, idInt.toString())
-    //console.log("setLatestEthPriceRequest: ", setLatestEthPriceRequest);
 
     // Signing the transaction as the CallerContract's owner
     //let signedTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
@@ -110,7 +109,6 @@ async function setLatestEthPrice (oracleContract, callerAddress, ownerAddress, e
 
 async function init () {
   const { ownerAddress, web3js, clientAddress } = await common.initializeConnection()
-  //console.log("Web3js object: " , web3js)
   const oracleContract = await getOracleContract(web3js)
   console.log("Oracle contract address " , oracleContract._address)
   filterEvents(oracleContract, web3js)

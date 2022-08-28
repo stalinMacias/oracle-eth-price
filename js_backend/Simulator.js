@@ -39,9 +39,6 @@ async function init () {
   })
   // setting the oracle instance address in the callerContract should have been already set by the contract's owner
   // A normal user can't & shouldn't be involved on this process
-  //const networkId = await web3js.eth.net.getId()
-  //const oracleAddress =  OracleJSON.networks[networkId].address
-  //await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress, gasLimit: 100000 })
 
   let requestedEthPriceTimes = 0;
 
@@ -55,49 +52,21 @@ async function init () {
 
       // Defining the transaction
       let updateEthPriceRequest = callerContract.methods.updateEthPrice()
-      //console.log("updateEthPriceRequest: ", updateEthPriceRequest);
 
       // Signing the transaction as the Client's owner
       //let signedTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
       let signedpdateEthPriceRequestTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(updateEthPriceRequest, clientAddress, web3js), CLIENT_KEYS);
       //console.log("signedpdateEthPriceRequestTransaction: ", signedpdateEthPriceRequestTransaction);
 
-      // Sending the signed transaction
+      // When sending transactions to a public blockchain the transaction must be signed before actually sending it    <---> sendSignedTransaction(signedTrasaction.rawTransaction)
       console.log("Sending the signed transaction to execute the updateEthPrice() in the Caller Contract");
       await common.sendingSignedTransactions(signedpdateEthPriceRequestTransaction, web3js, "Calling the updateEthPrice() method in the Caller Contract")
-
-
-      /*
-      console.log(updatePriceRequest._parent._address)
-      console.log(options);
-      console.log("Signed Transaction: ", signedTransaction);
-
-      // Sending the sigend transaction
-      try {
-        web3js.eth.sendSignedTransaction(signedTransaction.rawTransaction)
-          .once('transactionHash', function(hash){ 
-            console.log("txHash", hash)
-            activeTrancation = true;
-          })
-          .once('receipt', function(receipt){ console.log("receipt", receipt) })
-          .on('confirmation', function(confNumber, receipt){ console.log("confNumber",confNumber,"receipt",receipt) })
-          .on('error', function(error){ console.log("error", error) })
-          .then(function(receipt){
-              console.log("trasaction completed!", receipt);
-          });
-      } catch (error) {
-        console.log("Error Sending Transaction", error.message);
-      }
-      
       
       // Sending an unsigned transaction - Works for Ganache but not for public blockchains
-      // When sending transactions to a public blockchain the transaction must be signed before actually sending it    <---> sendSignedTransaction(signedTrasaction.rawTransaction)
       //callerContract.methods.updateEthPrice().send({ from: clientAddress, gasLimit: 100000 })
-      */
 
       requestedEthPriceTimes = 0
     }
   }, SLEEP_INTERVAL);
-
 
 })()
