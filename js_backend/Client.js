@@ -1,17 +1,15 @@
 const common = require('./utils/common.js')
-const SLEEP_INTERVAL = process.env.SLEEP_INTERVAL || 2000
+const SLEEP_INTERVAL = process.env.SLEEP_INTERVAL || 5000
 const CallerJSON = require('./contracts/CallerContract.json')
 const OracleJSON = require('./contracts/EthPriceOracle.json')
+const OWNER_KEYS = process.env.OWNER_KEYS || ""
 
 async function getCallerContract (web3js) {
-  console.log("Running in the getCallerContract()")
-  console.log(await web3js.eth.net.getId())
+  //console.log(await web3js.eth.net.getId())
   const networkId = await web3js.eth.net.getId()
-  console.log("netowrkId: ", networkId)
+  //console.log("netowrkId: ", networkId)
   return new web3js.eth.Contract(CallerJSON.abi, CallerJSON.networks[networkId].address)
 }
-
-
 
 
 async function filterEvents (callerContract) {
@@ -25,26 +23,177 @@ async function filterEvents (callerContract) {
   })
 }
 
-async function init () {
-  console.log("Running in the init() function")
-  const { ownerAddress, web3js } = await common.initializeConnection()
-  //console.log("Web3js object: " , web3js)
-  const callerContract = await getCallerContract(web3js)
-  //console.log("callerContract; " , callerContract)
-  filterEvents(callerContract)
-  return { callerContract, ownerAddress, web3js }
+async function generateTransactionsOptions(transactionDefined, transactionSenderAddress, web3js) {
+  const hardcodingRequiredGas = web3js.utils.toWei('0.0000000000002', 'ether')
+  // Getting the account's current nonce
+  const accountNonce = await web3js.eth.getTransactionCount(transactionSenderAddress)
+
+  // Options of the transaction
+  let options = {
+    nonce: accountNonce,
+    to      : transactionDefined._parent._address,  // contract's address
+    data    : transactionDefined.encodeABI(),
+    //gas     : await transactionDefined.estimateGas({from: ownerAddress}) <----> For some reasong the estimateGas() seems not to be working!
+    gas     : hardcodingRequiredGas,
+  };
+
+  console.log(options);
+
+  return options
+
 }
 
+async function sendingSignedTransactions(signedTransaction, web3js, txDescriptionMessage) {
+  console.log("Sending the signed transaction");
+
+
+  // Sending the signed transaction
+  try {
+    await web3js.eth.sendSignedTransaction(signedTransaction.rawTransaction)
+      .once('transactionHash', function(hash){ 
+        console.log("txHash", hash)
+      })
+      // When the receipt is received indicated that the transaction has been completed
+      .once('receipt', function(receipt){ 
+        console.log("receipt", receipt) 
+      })
+      .on('confirmation', function(confNumber, receipt){ 
+        //console.log("confNumber",confNumber,"receipt",receipt)
+        console.log("confNumber: ",confNumber, " for tx: ", txDescriptionMessage);
+      })
+      .on('error', function(error){ 
+        console.log("error", error)
+
+      })
+      .then(function(receipt){
+          console.log("Transaction completed! - ", txDescriptionMessage);
+          console.log(receipt);
+      });
+  } catch (error) {
+    console.log("Error Sending Transaction - ", txDescriptionMessage);
+    console.log(error.message);
+  }
+
+}
+
+
+async function init () {
+  console.log("Running in the init() function")
+  const { ownerAddress, web3js, clientAddress } = await common.initializeConnection()
+  //console.log("Web3js object: " , web3js)
+  const callerContract = await getCallerContract(web3js)
+  
+  filterEvents(callerContract)
+
+  // Setting the oracle contract address
+  const networkId = await web3js.eth.net.getId()
+  const oracleAddress =  OracleJSON.networks[networkId].address
+
+  console.log("callerContract address " , callerContract._address)
+  console.log("oracleAddress address " , oracleAddress)
+
+  //await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress, gasLimit: 100000 })
+
+  // Defining the transaction
+  let setOracleInstanceAddress = callerContract.methods.setOracleInstanceAddress(oracleAddress)
+
+  // Signing the transaction as the CallerContract's owner
+  // let signedSetOracleInstanceAddressTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
+  let signedSetOracleInstanceAddressTransaction  = await web3js.eth.accounts.signTransaction(await generateTransactionsOptions(setOracleInstanceAddress, ownerAddress, web3js), OWNER_KEYS);
+
+  // Sending the signed transaction
+  //await sendingSignedTransactions(signedSetOracleInstanceAddressTransaction, web3js, "setOracleInstanceAddress transaction")
+
+  return { callerContract, ownerAddress, web3js, clientAddress }
+}
+
+
 (async () => {
-  const { callerContract, ownerAddress, web3js } = await init()
+  const { callerContract, ownerAddress, web3js, clientAddress } = await init()
   process.on( 'SIGINT', () => {
     console.log('Calling precess.exit()')
     process.exit( );
-  })
-  const networkId = await web3js.eth.net.getId()
-  const oracleAddress =  OracleJSON.networks[networkId].address
-  await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress, gasLimit: 1000000 })
+  })  
+
+  let requestedEthPriceTimes = 0;
+
   setInterval( async () => {
-    callerContract.methods.updateEthPrice().send({ from: ownerAddress, gasLimit: 1000000 })
+    requestedEthPriceTimes++;
+    const price = await callerContract.methods.getCurrentEthPrice().call({ from: ownerAddress })
+    console.log("Current Eth price set in the Oracle: ", price);
+
+    if(requestedEthPriceTimes == 10) {
+      console.log("5th time requesting the ETC price, time to update the price in the Oracle contract");
+    
+      // Defining the transaction
+      let updatePriceRequest = callerContract.methods.updateEthPrice()
+
+      // Getting the account's current nonce
+      accountNonce = await web3js.eth.getTransactionCount(ownerAddress)
+
+      /*
+      // Options of the transaction
+      let options = {
+        nonce: accountNonce,
+        to      : updatePriceRequest._parent._address,  // contract's address
+        data    : updatePriceRequest.encodeABI(),
+        //gas     : await updatePriceRequest.estimateGas({from: ownerAddress}) <----> For some reasong the estimateGas() seems not to be working!
+        gas     : hardcodingRequiredGas,
+        //networkId : '0x5'
+      };
+      */
+
+      // Signing the transaction as the CallerContract's owner
+      //let signedTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
+      let signedTransaction  = await web3js.eth.accounts.signTransaction(await generateTransactionsOptions(updatePriceRequest, ownerAddress, web3js), OWNER_KEYS);
+
+      // Sending the signed transaction
+      await sendingSignedTransactions(signedTransaction, web3js, "Updating ETH Price in CallerContract Transaction")
+
+
+      //console.log(updatePriceRequest._parent._address)
+      //console.log(options);
+      //console.log("Signed Transaction: ", signedTransaction);
+
+      /*
+      // Sending the signed transaction
+      try {
+        web3js.eth.sendSignedTransaction(signedTransaction.rawTransaction)
+          .once('transactionHash', function(hash){ 
+            console.log("txHash", hash)
+            activeTransaction = true;
+          })
+          .once('receipt', function(receipt){ console.log("receipt", receipt) })
+          .on('confirmation', function(confNumber, receipt){ console.log("confNumber",confNumber,"receipt",receipt) })
+          .on('error', function(error){ console.log("error", error) })
+          .then(function(receipt){
+              console.log("Transaction completed!", receipt);
+          });
+      } catch (error) {
+        console.log("Error Sending Transaction", error.message);
+      }
+      */
+      
+      // Sending an unsigned transaction - Works for Ganache but not for public blockchains
+      // When sending transactions to a public blockchain the transaction must be signed before actually sending it    <---> sendSignedTransaction(signedTransaction.rawTransaction)
+      //callerContract.methods.updateEthPrice().send({ from: ownerAddress, gasLimit: 100000 })
+      requestedEthPriceTimes = 0
+    }
+    
   }, SLEEP_INTERVAL);
+
+  module.exports = {
+    init,
+  };
+
+
+  /*
+  * Force the ETH price to be updated automatically each X time!
+  setInterval( async () => {
+    callerContract.methods.updateEthPrice().send({ from: ownerAddress, gasLimit: 100000 })
+  }, SLEEP_INTERVAL);
+
+  
+
+  */
 })()

@@ -38,7 +38,7 @@ async function filterEvents (oracleContract, web3js) {
       console.error('Error on event', err)
       return
     }
-    // Do something
+    console.log("ETH Price was updated in the Oracle contract")
   })
 }
 
@@ -52,6 +52,7 @@ async function addRequestToQueue (event) {
 
 async function processQueue (oracleContract, ownerAddress) {
   let processedRequests = 0
+  console.log("Pending requests to be processed:" ,pendingRequests);
   while (pendingRequests.length > 0 && processedRequests < CHUNK_SIZE) {
     const req = pendingRequests.shift()
     await processRequest(oracleContract, ownerAddress, req.id, req.callerAddress)
@@ -64,7 +65,6 @@ async function processRequest (oracleContract, ownerAddress, id, callerAddress) 
   while (retries < MAX_RETRIES) {
     try {
       const ethPrice = await retrieveLatestEthPrice()
-      console.log("Eth price: ", ethPrice)
       //const ethPrice = 1600
       await setLatestEthPrice(oracleContract, callerAddress, ownerAddress, ethPrice, id)
       return
@@ -85,6 +85,7 @@ async function setLatestEthPrice (oracleContract, callerAddress, ownerAddress, e
   const ethPriceInt = (new BN(parseInt(ethPrice), 10)).mul(multiplier)
   const idInt = new BN(parseInt(id))
   try {
+    console.log("Trying to execute the setLatestEthPrice() in the EthPriceOracle contract!");
     await oracleContract.methods.setLatestEthPrice(ethPriceInt.toString(), callerAddress, idInt.toString()).send({ from: ownerAddress })
   } catch (error) {
     console.log('Error encountered while calling setLatestEthPrice.')
@@ -93,17 +94,17 @@ async function setLatestEthPrice (oracleContract, callerAddress, ownerAddress, e
 }
 
 async function init () {
-  const { ownerAddress, web3js } = await common.initializeConnection()
+  const { ownerAddress, web3js, clientAddress } = await common.initializeConnection()
   //console.log("Web3js object: " , web3js)
   const oracleContract = await getOracleContract(web3js)
-  //console.log("Oracle contract: " , oracleContract)
+  console.log("Oracle contract address " , oracleContract._address)
   filterEvents(oracleContract, web3js)
-  return { oracleContract, ownerAddress }
+  return { oracleContract, ownerAddress, clientAddress }
 }
 
 
 (async () => {
-  const { oracleContract, ownerAddress } = await init()
+  const { oracleContract, ownerAddress, clientAddress } = await init()
   console.log("Initialized the oracle contract & retrieved its owner address")
 
   process.on( 'SIGINT', () => {
