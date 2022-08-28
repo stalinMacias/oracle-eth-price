@@ -48,7 +48,7 @@ async function init () {
   let signedSetOracleInstanceAddressTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(setOracleInstanceAddress, ownerAddress, web3js), OWNER_KEYS);
 
   // Sending the signed transaction
-  await common.sendingSignedTransactions(signedSetOracleInstanceAddressTransaction, web3js, "setOracleInstanceAddress transaction")
+  //await common.sendingSignedTransactions(signedSetOracleInstanceAddressTransaction, web3js, "setOracleInstanceAddress transaction")
 
   return { callerContract, ownerAddress, web3js, clientAddress }
 }
@@ -68,14 +68,11 @@ async function init () {
     const price = await callerContract.methods.getCurrentEthPrice().call({ from: ownerAddress })
     console.log("Current Eth price set in the Oracle: ", price);
 
-    if(requestedEthPriceTimes == 10) {
-      console.log("5th time requesting the ETC price, time to update the price in the Oracle contract");
+    if(requestedEthPriceTimes == 5) {
+      console.log("5th time requesting the ETH price, time to update the price in the Oracle contract");
     
       // Defining the transaction
       let updatePriceRequest = callerContract.methods.updateEthPrice()
-
-      // Getting the account's current nonce
-      accountNonce = await web3js.eth.getTransactionCount(ownerAddress)
 
       /*
       // Options of the transaction
