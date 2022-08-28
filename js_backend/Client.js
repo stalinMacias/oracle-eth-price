@@ -23,60 +23,6 @@ async function filterEvents (callerContract) {
   })
 }
 
-async function generateTransactionsOptions(transactionDefined, transactionSenderAddress, web3js) {
-  const hardcodingRequiredGas = web3js.utils.toWei('0.0000000000002', 'ether')
-  // Getting the account's current nonce
-  const accountNonce = await web3js.eth.getTransactionCount(transactionSenderAddress)
-
-  // Options of the transaction
-  let options = {
-    nonce: accountNonce,
-    to      : transactionDefined._parent._address,  // contract's address
-    data    : transactionDefined.encodeABI(),
-    //gas     : await transactionDefined.estimateGas({from: ownerAddress}) <----> For some reasong the estimateGas() seems not to be working!
-    gas     : hardcodingRequiredGas,
-  };
-
-  console.log(options);
-
-  return options
-
-}
-
-async function sendingSignedTransactions(signedTransaction, web3js, txDescriptionMessage) {
-  console.log("Sending the signed transaction");
-
-
-  // Sending the signed transaction
-  try {
-    await web3js.eth.sendSignedTransaction(signedTransaction.rawTransaction)
-      .once('transactionHash', function(hash){ 
-        console.log("txHash", hash)
-      })
-      // When the receipt is received indicated that the transaction has been completed
-      .once('receipt', function(receipt){ 
-        console.log("receipt", receipt) 
-      })
-      .on('confirmation', function(confNumber, receipt){ 
-        //console.log("confNumber",confNumber,"receipt",receipt)
-        console.log("confNumber: ",confNumber, " for tx: ", txDescriptionMessage);
-      })
-      .on('error', function(error){ 
-        console.log("error", error)
-
-      })
-      .then(function(receipt){
-          console.log("Transaction completed! - ", txDescriptionMessage);
-          console.log(receipt);
-      });
-  } catch (error) {
-    console.log("Error Sending Transaction - ", txDescriptionMessage);
-    console.log(error.message);
-  }
-
-}
-
-
 async function init () {
   console.log("Running in the init() function")
   const { ownerAddress, web3js, clientAddress } = await common.initializeConnection()
@@ -99,10 +45,10 @@ async function init () {
 
   // Signing the transaction as the CallerContract's owner
   // let signedSetOracleInstanceAddressTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
-  let signedSetOracleInstanceAddressTransaction  = await web3js.eth.accounts.signTransaction(await generateTransactionsOptions(setOracleInstanceAddress, ownerAddress, web3js), OWNER_KEYS);
+  let signedSetOracleInstanceAddressTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(setOracleInstanceAddress, ownerAddress, web3js), OWNER_KEYS);
 
   // Sending the signed transaction
-  //await sendingSignedTransactions(signedSetOracleInstanceAddressTransaction, web3js, "setOracleInstanceAddress transaction")
+  await common.sendingSignedTransactions(signedSetOracleInstanceAddressTransaction, web3js, "setOracleInstanceAddress transaction")
 
   return { callerContract, ownerAddress, web3js, clientAddress }
 }
@@ -145,10 +91,10 @@ async function init () {
 
       // Signing the transaction as the CallerContract's owner
       //let signedTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
-      let signedTransaction  = await web3js.eth.accounts.signTransaction(await generateTransactionsOptions(updatePriceRequest, ownerAddress, web3js), OWNER_KEYS);
+      let signedTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(updatePriceRequest, ownerAddress, web3js), OWNER_KEYS);
 
       // Sending the signed transaction
-      await sendingSignedTransactions(signedTransaction, web3js, "Updating ETH Price in CallerContract Transaction")
+      await common.sendingSignedTransactions(signedTransaction, web3js, "Updating ETH Price in CallerContract Transaction")
 
 
       //console.log(updatePriceRequest._parent._address)
