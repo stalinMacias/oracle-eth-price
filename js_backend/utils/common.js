@@ -40,7 +40,7 @@ async function initializeConnection() {
   }
 }
 
-async function getCallerContract (web3js,contractJSON) {
+async function getContract (web3js,contractJSON) {
   //console.log(await web3js.eth.net.getId())
   const networkId = await web3js.eth.net.getId()
   //console.log("netowrkId: ", networkId)
@@ -101,7 +101,7 @@ async function sendingSignedTransactions(signedTransaction, web3js, txDescriptio
 
 module.exports = {
   initializeConnection,
-  getCallerContract,
+  getContract,
   generateTransactionsOptions,
   sendingSignedTransactions,
 };

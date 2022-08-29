@@ -24,7 +24,7 @@ async function init () {
   const { ownerAddress, web3js, clientAddress } = await common.initializeConnection()
   console.log("Client Address: ", clientAddress);
   //console.log("Web3js object: " , web3js)
-  const callerContract = await common.getCallerContract(web3js,CallerJSON)
+  const callerContract = await common.getContract(web3js,CallerJSON)
   //console.log("callerContract; " , callerContract)
   filterEvents(callerContract)
   return { callerContract, ownerAddress, web3js, clientAddress }

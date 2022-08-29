@@ -4,12 +4,6 @@ const CallerJSON = require('./contracts/CallerContract.json')
 const OracleJSON = require('./contracts/EthPriceOracle.json')
 const OWNER_KEYS = process.env.OWNER_KEYS || ""
 
-async function getCallerContract (web3js) {
-  const networkId = await web3js.eth.net.getId()
-  return new web3js.eth.Contract(CallerJSON.abi, CallerJSON.networks[networkId].address)
-}
-
-
 async function filterEvents (callerContract) {
   console.log("Running in the filterEvents")
   callerContract.events.PriceUpdatedEvent({ filter: { } }, async (err, event) => {
@@ -24,7 +18,7 @@ async function filterEvents (callerContract) {
 async function init () {
   console.log("Running in the init() function")
   const { ownerAddress, web3js, clientAddress } = await common.initializeConnection()
-  const callerContract = await getCallerContract(web3js)
+  const callerContract = await common.getContract(web3js,CallerJSON)
   
   filterEvents(callerContract)
 
