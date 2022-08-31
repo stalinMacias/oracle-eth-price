@@ -1,8 +1,11 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./CallerContractInterface.sol";
 contract EthPriceOracle is AccessControl{
+
+  using SafeMath for uint256;
 
   // Create a new role identifier for the OWNERS role
   bytes32 public constant OWNERS = keccak256("OWNERS");
@@ -51,7 +54,7 @@ contract EthPriceOracle is AccessControl{
   function addOracle(address _oracle) public onlyRole(OWNERS) {
     require(hasRole(ORACLES, _oracle), "Alrady an Oracle!");
     grantRole(ORACLES, _oracle);
-    numOracles++;
+    numOracles.add(1);
     emit AddOracleEvent(_oracle);
   }
   // Only OWNERS can revoke the ORACLES role from an address - The function needs at least 2/3 of the total owners' approvals to effectively revoke an oracle from the ORACLES role
@@ -59,7 +62,7 @@ contract EthPriceOracle is AccessControl{
     require(!hasRole(ORACLES, _oracle), "Not an Oracle");
     require(numOracles > 1, "Do not remove the last Oracle");
     revokeRole(ORACLES, _oracle);
-    numOracles--;
+    numOracles.sub(1);
     emit RemoveOracleEvent(_oracle);
   }
   // Set the THRESHOLD value to determine the minimum # of responses that are required to compute the ETH Price for an individual updateETHPrice request
@@ -69,7 +72,7 @@ contract EthPriceOracle is AccessControl{
     emit SetThresholdEvent(THRESHOLD);
   }
   function getLatestEthPrice() public returns (uint256) {
-    randNonce++;
+    randNonce.add(1);
     uint id = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % modulus;
     pendingRequests[id] = true;
     emit GetLatestEthPriceEvent(msg.sender, id);
@@ -88,7 +91,7 @@ contract EthPriceOracle is AccessControl{
       for (uint f = 0; f < requestIdToResponse[_id].length; f++) {
         averageETHPrice = requestIdToResponse[_id][f].ethPrice;  // Get the ethPrice from a single Response for a given _id request
       }
-      averageETHPrice = averageETHPrice / numResponses;
+      averageETHPrice = averageETHPrice.div(numResponses);
       delete pendingRequests[_id];
       CallerContractInterface callerContractInstance;
       callerContractInstance = CallerContractInterface(_callerAddress);
