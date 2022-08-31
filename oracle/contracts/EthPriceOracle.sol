@@ -31,17 +31,29 @@ contract EthPriceOracle is AccessControl{
   constructor() {
     // Set the contract's creator as the Admin of all the Roles
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    // Add the contract's creator to the OWNER's Role
+    _grantRole(OWNERS, msg.sender);
   }
 
-  // Only ADMIN can grant the ORACLES role to an address
-  function addOracle(address _oracle) public onlyRole(DEFAULT_ADMIN_ROLE) {
+  // Only Owners can add new Owners - The function needs at least 2/3 of the total owners' approvals to effectively add a new owner to the OWNERS role
+  function addOwner(address _owner) public onlyRole(OWNERS) {
+
+  }
+
+  // Only Owners can add new Owners - The function needs at least 2/3 of the total owners' approvals to effectively revoke an owner from the OWNERS role
+  function removeOwner(address _owner) public onlyRole(OWNERS) {
+    
+  }
+
+  // Only OWNERS can grant the ORACLES role to an address - The function needs at least 2/3 of the total owners' approvals to effectively add a new oracle to the ORACLES role
+  function addOracle(address _oracle) public onlyRole(OWNERS) {
     require(hasRole(ORACLES, _oracle), "Alrady an Oracle!");
     grantRole(ORACLES, _oracle);
     numOracles++;
     emit AddOracleEvent(_oracle);
   }
-  // Only ADMIN can revoke the ORACLES role from an address
-  function removeOracle(address _oracle) public onlyRole(DEFAULT_ADMIN_ROLE) {
+  // Only OWNERS can revoke the ORACLES role from an address - The function needs at least 2/3 of the total owners' approvals to effectively revoke an oracle from the ORACLES role
+  function removeOracle(address _oracle) public onlyRole(OWNERS) {
     require(!hasRole(ORACLES, _oracle), "Not an Oracle");
     require(numOracles > 1, "Do not remove the last Oracle");
     revokeRole(ORACLES, _oracle);
