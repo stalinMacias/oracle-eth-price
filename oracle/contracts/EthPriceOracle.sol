@@ -13,6 +13,7 @@ contract EthPriceOracle is AccessControl{
   uint private randNonce = 0;
   uint private modulus = 1000;
   uint private numOracles = 0;
+  uint private THRESHOLD = 0;
 
   struct Response {
     address oracleAddress;
@@ -27,6 +28,7 @@ contract EthPriceOracle is AccessControl{
   event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
   event AddOracleEvent(address oracleAddress);
   event RemoveOracleEvent(address oracleAddress);
+  event SetThresholdEvent (uint threshold);
 
   constructor() {
     // Set the contract's creator as the Admin of all the Roles
@@ -42,7 +44,7 @@ contract EthPriceOracle is AccessControl{
 
   // Only Owners can add new Owners - The function needs at least 2/3 of the total owners' approvals to effectively revoke an owner from the OWNERS role
   function removeOwner(address _owner) public onlyRole(OWNERS) {
-    
+
   }
 
   // Only OWNERS can grant the ORACLES role to an address - The function needs at least 2/3 of the total owners' approvals to effectively add a new oracle to the ORACLES role
@@ -60,6 +62,12 @@ contract EthPriceOracle is AccessControl{
     numOracles--;
     emit RemoveOracleEvent(_oracle);
   }
+  // Set the THRESHOLD value to determine the minimum # of responses that are required to compute the ETH Price for an individual updateETHPrice request
+  // The function needs at least 2/3 of the total owners' approvals to effectively SET/UPDATE the THERSHOLD's value
+  function setThreshold (uint _threshold) public onlyRole(OWNERS){
+    THRESHOLD = _threshold;
+    emit SetThresholdEvent(THRESHOLD);
+  }
   function getLatestEthPrice() public returns (uint256) {
     randNonce++;
     uint id = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % modulus;
@@ -73,10 +81,19 @@ contract EthPriceOracle is AccessControl{
     Response memory resp; // Declare a new instance of the Response struct. will be filled in thex next step and later will be stored permanently in the Response[] for the specific _id in the requestIdToResponse mapping
     resp = Response(msg.sender,_callerAddress,_ethPrice); // Initialize the Response instance with the corresponding information for this oracle's response
     requestIdToResponse[_id].push(resp);  // Push resp to the array stored at requestIdToResponse[_id].
-    delete pendingRequests[_id];
-    CallerContractInterface callerContractInstance;
-    callerContractInstance = CallerContractInterface(_callerAddress);
-    callerContractInstance.callback(_ethPrice,_id);
-    emit SetLatestEthPriceEvent(_ethPrice, _callerAddress);
+    uint numResponses = requestIdToResponse[_id].length;  // The total # of Responses for a given _id request can be calculated by the length of the Response[] array for the given _id request
+    if(numResponses == THRESHOLD) {
+      // Calculate the average ETH Price based on the price stored in all the Responses for the given _id request
+      uint averageETHPrice = 0;
+      for (uint f = 0; f < requestIdToResponse[_id].length; f++) {
+        averageETHPrice = requestIdToResponse[_id][f].ethPrice;  // Get the ethPrice from a single Response for a given _id request
+      }
+      averageETHPrice = averageETHPrice / numResponses;
+      delete pendingRequests[_id];
+      CallerContractInterface callerContractInstance;
+      callerContractInstance = CallerContractInterface(_callerAddress);
+      callerContractInstance.callback(averageETHPrice,_id);
+      emit SetLatestEthPriceEvent(averageETHPrice, _callerAddress);
+    }
   }
 }
