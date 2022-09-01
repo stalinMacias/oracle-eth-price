@@ -19,6 +19,7 @@ async function init () {
   console.log("Running in the init() function")
   const { ownerAddress, web3js, clientAddress } = await common.initializeConnection()
   const callerContract = await common.getContract(web3js,CallerJSON)
+  const oracleContract = await common.getContract(web3js,OracleJSON)
   
   filterEvents(callerContract)
 
@@ -28,6 +29,7 @@ async function init () {
 
   console.log("callerContract address " , callerContract._address)
   console.log("oracleAddress address " , oracleAddress)
+  console.log("oracle's owner address: ", ownerAddress);
 
   // Sending an unsigned transaction - Only works in Ganache
   //await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress, gasLimit: 100000 })
@@ -41,6 +43,27 @@ async function init () {
 
   console.log("Sending the signed transaction to set the oracle instance address in the Caller Contract")
   await common.sendingSignedTransactions(signedSetOracleInstanceAddressTransaction, web3js, "setOracleInstanceAddress transaction")
+
+  // Defining the transaction to increase the THERSHOLD in the Oracle contract
+  let setThreshold = oracleContract.methods.setThreshold(2)
+
+  // Signing the transaction as the CallerContract's owner
+  // let signedSetThresholdTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
+  let signedSetThresholdTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(setThreshold, ownerAddress, web3js), OWNER_KEYS);
+
+  console.log("Sending the signed transaction to set the THRESHOLD in the Oracle Contract")
+  await common.sendingSignedTransactions(signedSetThresholdTransaction, web3js, "setThreshold transaction")
+
+  // Defining the transaction to add the ownerAddress to the ORACLES role
+  let addOwnerToOraclesRole = oracleContract.methods.addOracle(ownerAddress)
+
+  // Signing the transaction as the CallerContract's owner
+  // let signedAddOwnerToOraclesRole  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
+  let signedAddOwnerToOraclesRole  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(addOwnerToOraclesRole, ownerAddress, web3js), OWNER_KEYS);
+
+  console.log("Sending the signed transaction to add the oracle contract's owner to the ORACLES role in the Oracle Contract")
+  await common.sendingSignedTransactions(signedAddOwnerToOraclesRole, web3js, "addOwnerToOraclesRole transaction")
+
 
   return { callerContract, ownerAddress, web3js, clientAddress }
 }

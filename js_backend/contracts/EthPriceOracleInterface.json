@@ -29,14 +29,14 @@
     "absolutePath": "project:/contracts/EthPriceOracleInterface.sol",
     "exportedSymbols": {
       "EthPriceOracleInterface": [
-        259
+        267
       ]
     },
-    "id": 260,
+    "id": 268,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 253,
+        "id": 261,
         "literals": [
           "solidity",
           ">=",
@@ -56,9 +56,9 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "fullyImplemented": false,
-        "id": 259,
+        "id": 267,
         "linearizedBaseContracts": [
-          259
+          267
         ],
         "name": "EthPriceOracleInterface",
         "nameLocation": "45:23:3",
@@ -66,7 +66,7 @@
         "nodes": [
           {
             "functionSelector": "30c0b9ec",
-            "id": 258,
+            "id": 266,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
@@ -74,23 +74,23 @@
             "nameLocation": "83:17:3",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 254,
+              "id": 262,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "100:2:3"
             },
             "returnParameters": {
-              "id": 257,
+              "id": 265,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 256,
+                  "id": 264,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 258,
+                  "scope": 266,
                   "src": "121:7:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -99,7 +99,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 255,
+                    "id": 263,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "121:7:3",
@@ -113,14 +113,14 @@
               ],
               "src": "120:9:3"
             },
-            "scope": 259,
+            "scope": 267,
             "src": "74:56:3",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 260,
+        "scope": 268,
         "src": "35:98:3",
         "usedErrors": []
       }
@@ -131,14 +131,14 @@
     "absolutePath": "project:/contracts/EthPriceOracleInterface.sol",
     "exportedSymbols": {
       "EthPriceOracleInterface": [
-        259
+        267
       ]
     },
-    "id": 260,
+    "id": 268,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 253,
+        "id": 261,
         "literals": [
           "solidity",
           ">=",
@@ -158,9 +158,9 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "fullyImplemented": false,
-        "id": 259,
+        "id": 267,
         "linearizedBaseContracts": [
-          259
+          267
         ],
         "name": "EthPriceOracleInterface",
         "nameLocation": "45:23:3",
@@ -168,7 +168,7 @@
         "nodes": [
           {
             "functionSelector": "30c0b9ec",
-            "id": 258,
+            "id": 266,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
@@ -176,23 +176,23 @@
             "nameLocation": "83:17:3",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 254,
+              "id": 262,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "100:2:3"
             },
             "returnParameters": {
-              "id": 257,
+              "id": 265,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 256,
+                  "id": 264,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 258,
+                  "scope": 266,
                   "src": "121:7:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -201,7 +201,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 255,
+                    "id": 263,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "121:7:3",
@@ -215,14 +215,14 @@
               ],
               "src": "120:9:3"
             },
-            "scope": 259,
+            "scope": 267,
             "src": "74:56:3",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 260,
+        "scope": 268,
         "src": "35:98:3",
         "usedErrors": []
       }
@@ -235,7 +235,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-08-26T00:39:27.667Z",
+  "updatedAt": "2022-08-31T23:56:01.743Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},
