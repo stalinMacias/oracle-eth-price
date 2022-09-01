@@ -89,7 +89,7 @@ contract EthPriceOracle is AccessControl{
       // Calculate the average ETH Price based on the price stored in all the Responses for the given _id request
       uint averageETHPrice = 0;
       for (uint f = 0; f < requestIdToResponse[_id].length; f++) {
-        averageETHPrice = requestIdToResponse[_id][f].ethPrice;  // Get the ethPrice from a single Response for a given _id request
+        averageETHPrice.add(requestIdToResponse[_id][f].ethPrice);  // Sum all the individual ethPrices from all the single Response for a given _id request
       }
       averageETHPrice = averageETHPrice.div(numResponses);
       delete pendingRequests[_id];
