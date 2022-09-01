@@ -52,14 +52,14 @@ contract EthPriceOracle is AccessControl{
 
   // Only OWNERS can grant the ORACLES role to an address - The function needs at least 2/3 of the total owners' approvals to effectively add a new oracle to the ORACLES role
   function addOracle(address _oracle) public onlyRole(OWNERS) {
-    require(hasRole(ORACLES, _oracle), "Alrady an Oracle!");
+    require(!hasRole(ORACLES, _oracle), "Alrady an Oracle!");
     grantRole(ORACLES, _oracle);
     numOracles.add(1);
     emit AddOracleEvent(_oracle);
   }
   // Only OWNERS can revoke the ORACLES role from an address - The function needs at least 2/3 of the total owners' approvals to effectively revoke an oracle from the ORACLES role
   function removeOracle(address _oracle) public onlyRole(OWNERS) {
-    require(!hasRole(ORACLES, _oracle), "Not an Oracle");
+    require(hasRole(ORACLES, _oracle), "Not an Oracle");
     require(numOracles > 1, "Do not remove the last Oracle");
     revokeRole(ORACLES, _oracle);
     numOracles.sub(1);
