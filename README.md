@@ -1,4 +1,8 @@
-# oracle-eth-price
+# oracle-eth-price - centralized-oracle branch
+* This branch contains the code for a centralized oracle.
+* By centralized it means that a single oracle is able to update the ETH Price in the Caller Contract
+* master branch contains the code of a decentralized oracle - It is adapted to be able to receive multiple responses for the same request and set the new ETH Price based on the average price of all the responses for the same request
+
 Building an Oracle to update the ETH price retrieving the information from the Binance API
 
 ## This is a space to document the code execution flow
