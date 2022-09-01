@@ -26,7 +26,7 @@
 
 ## Ganache
 ### Oracle Contract - EthPriceOracle
-* ????
+* 0x94Cce2F66E6A4D8a4D47ccCEbf6F1b96f96b9dD6
 
 ### Caller Contract - CallerContract
-* ????
+* 0xd3D7899bC20CacC3539C80BD4BF9c66976ffFbb2
