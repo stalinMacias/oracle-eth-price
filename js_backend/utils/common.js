@@ -15,19 +15,19 @@ async function initializeConnection() {
   let provider_owner = await new HDWalletProvider({
     privateKeys: OWNER_KEYS.split(','),
     //providerOrUrl: `https://goerli.infura.io/v3/${INFURA_API_KEY}`
-    //providerOrUrl: `wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`   // Goerli through ws (Web Sockets)
-    providerOrUrl: `ws://172.29.224.1:7545`                             // Ganache through ws (Web Sockets)
+    providerOrUrl: `wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`   // Goerli through ws (Web Sockets)
+    //providerOrUrl: `ws://172.29.224.1:7545`                             // Ganache through ws (Web Sockets)
   })
 
   let provider_client = await new HDWalletProvider({
     privateKeys: CLIENT_KEYS.split(','),
     //providerOrUrl: `https://goerli.infura.io/v3/${INFURA_API_KEY}`
-    //providerOrUrl: `wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`   // Goerli through ws (Web Sockets)
-    providerOrUrl: `ws://172.29.224.1:7545`                             // Ganache through ws (Web Sockets)
+    providerOrUrl: `wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`   // Goerli through ws (Web Sockets)
+    //providerOrUrl: `ws://172.29.224.1:7545`                             // Ganache through ws (Web Sockets)
   })
 
-  //const web3 = new Web3(new Web3.providers.WebsocketProvider(`wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`))   // Goerli
-  const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://172.29.224.1:7545'))                             // Ganache
+  const web3 = new Web3(new Web3.providers.WebsocketProvider(`wss://goerli.infura.io/ws/v3/${INFURA_API_KEY}`))   // Goerli
+  //const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://172.29.224.1:7545'))                             // Ganache
   //console.log("web3 object: ", web3)
 
   console.log("Contract's owner address: " ,provider_owner.getAddress())

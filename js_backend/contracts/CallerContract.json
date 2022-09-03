@@ -6496,10 +6496,75 @@
   },
   "networks": {
     "5": {
-      "events": {},
+      "events": {
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        "0x6b69e4f2aedf7e65a79ecaf16e8869b2b99c87e341f2c51286bfd4a7fc3b9969": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "ethPrice",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "name": "PriceUpdatedEvent",
+          "type": "event"
+        },
+        "0x3ed150819af981e387450beb90ec379b8b322150dbb299d492b108c59a623e4b": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "name": "ReceivedNewRequestIdEvent",
+          "type": "event"
+        },
+        "0x441e3b056b114797955165bd03bb8393fc1658a713f09225de4745a8d068bf7d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "oracleAddress",
+              "type": "address"
+            }
+          ],
+          "name": "newOracleAddressEvent",
+          "type": "event"
+        }
+      },
       "links": {},
-      "address": "0x56dE247F0EC1E7d682cA01912C30a1e42ad64586",
-      "transactionHash": "0xfd1b503858561233aa2256148e311b8645c9f35e8c83fc3d82eb4821f2077d4e"
+      "address": "0xFb4137afD73021E728B9C4055753099d68147e9D",
+      "transactionHash": "0x1143cb9956d8cd0a1b1f214d37333b82a60e0846d4ed869340deeac600226adf"
     },
     "5777": {
       "events": {
@@ -6574,7 +6639,7 @@
     }
   },
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-08-31T23:56:05.465Z",
+  "updatedAt": "2022-09-01T05:27:01.688Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

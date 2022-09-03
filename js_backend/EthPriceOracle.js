@@ -92,7 +92,7 @@ async function setLatestEthPrice (oracleContract, callerAddress, ownerAddress, e
     // Defining the transaction
     let setLatestEthPriceRequest = oracleContract.methods.setLatestEthPrice(ethPriceInt.toString(), callerAddress, idInt.toString())
 
-    // Signing the transaction as the CallerContract's owner
+    // Signing the transaction as the Contract's owner
     //let signedTransaction  = await web3js.eth.accounts.signTransaction(options, OWNER_KEYS);
     let signedSetLatestEthPriceTransaction  = await web3js.eth.accounts.signTransaction(await common.generateTransactionsOptions(setLatestEthPriceRequest, ownerAddress, web3js), OWNER_KEYS);
     //console.log("signedSetLatestEthPriceTransaction: ", signedSetLatestEthPriceTransaction);

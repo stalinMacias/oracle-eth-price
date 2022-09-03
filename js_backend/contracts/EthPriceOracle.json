@@ -19022,10 +19022,163 @@
   },
   "networks": {
     "5": {
-      "events": {},
+      "events": {
+        "0xed46b7525d27f2470ee188e1d85693a6a8b59537b58701408b2f53588e63d1db": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "oracleAddress",
+              "type": "address"
+            }
+          ],
+          "name": "AddOracleEvent",
+          "type": "event"
+        },
+        "0x3d50a0c24e97813f35595d2f1f37dbf421d5e97f37abd4e222853e9b9c82c8d5": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "callerAddress",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "name": "GetLatestEthPriceEvent",
+          "type": "event"
+        },
+        "0x8d35b822981364028d4bb40af1edcfd97f4e186c8ccf97bafcc9adc68bd58c6d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "oracleAddress",
+              "type": "address"
+            }
+          ],
+          "name": "RemoveOracleEvent",
+          "type": "event"
+        },
+        "0xbd79b86ffe0ab8e8776151514217cd7cacd52c909f66475c3af44e129f0b00ff": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "previousAdminRole",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "newAdminRole",
+              "type": "bytes32"
+            }
+          ],
+          "name": "RoleAdminChanged",
+          "type": "event"
+        },
+        "0x2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            }
+          ],
+          "name": "RoleGranted",
+          "type": "event"
+        },
+        "0xf6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            }
+          ],
+          "name": "RoleRevoked",
+          "type": "event"
+        },
+        "0x91b860381268a473101de3379abbb70abf7ea6c9d1735cf58b9816479ff3b727": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "ethPrice",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "callerAddress",
+              "type": "address"
+            }
+          ],
+          "name": "SetLatestEthPriceEvent",
+          "type": "event"
+        },
+        "0x0f4f9dbb729778e455b47da600927c51653092f52835705824cd1db65a29ed0d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "threshold",
+              "type": "uint256"
+            }
+          ],
+          "name": "SetThresholdEvent",
+          "type": "event"
+        }
+      },
       "links": {},
-      "address": "0x4332E04856522371dFB30ce9344FE0d7EEfEFB47",
-      "transactionHash": "0x3b068393d0f5ba49f8cfa36740f4a48dcab2cee28d8b70f00b254019f032199a"
+      "address": "0xb3e336C03e4121CfFFD2F577Fd3e8C751D3330f0",
+      "transactionHash": "0xb7fa64a924e1732d8ed8bd9497df777c51b0400b0aecfb3f87958215a3df21d8"
     },
     "5777": {
       "events": {
@@ -19207,7 +19360,7 @@
     }
   },
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-09-01T01:31:37.100Z",
+  "updatedAt": "2022-09-01T05:23:27.974Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
