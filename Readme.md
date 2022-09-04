@@ -1,4 +1,4 @@
-#Readme - Decentralized Oracle Version
+# Readme - Decentralized Oracle Version
 
 - This decentralized version allows defining the number of responses coming from Oracle
 	- Call the setThreshold() method in Oracle's contract to update the # of required responses to update the price
